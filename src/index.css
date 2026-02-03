@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Italiana&display=swap");
+@import "tailwindcss";
+
+html, body, #root { height: 100%; }
+body { margin: 0; font-family: "Archia", sans-serif; font-weight: 400; }
+
+.font-ny { font-family: "NewYork", ui-serif, Georgia, "Times New Roman", serif; }
+.font-arch { font-family: "Archia", sans-serif; font-weight: 400; }
+
+.italiana-regular {
+  font-family: "Italiana", serif;
+  font-weight: 400;
+  font-style: normal;
+}
