@@ -5,6 +5,7 @@ import NavBar from "./layout/navBar";
 import './index.css'
 import Order from "./pages/order";
 import Menu from "./pages/menu";
+import Ubication from "./pages/ubication";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
 
       <div className="pt-20">
         <Routes>
+          <Route path="/ubication" element={<Ubication />} />
           <Route path="/login" element={<Login />} />
           <Route path="/order" element={<Order />} />
           <Route path="/menu" element={<Menu/>} />

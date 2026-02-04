@@ -1,4 +1,10 @@
-module.exports = {
-	api_url: false ? process.env.REACT_APP_API_URL_LOCAL : process.env.REACT_APP_API_URL,
-	front_url: false ? process.env.REACT_APP_REDIRECT_FRONTEND_LOCAL : process.env.REACT_APP_REDIRECT_FRONTEND
-};
+// src/env.js
+const IS_PROD = false;
+
+export const api_url = IS_PROD
+  ? "https://xypdmnido2.execute-api.us-west-1.amazonaws.com/api"
+  : "http://localhost:8000/api";
+
+export const front_url = IS_PROD
+  ? "https://wishveil-front.vercel.app"
+  : "http://localhost:3000";

@@ -78,7 +78,7 @@ export default function NavBar() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/ubicacion" className={linkClass}>
+              <NavLink to="/ubication" className={linkClass}>
                 Ubicación
               </NavLink>
             </li>

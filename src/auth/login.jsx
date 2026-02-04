@@ -1,47 +1,46 @@
 import { useState } from "react";
+import axios from "axios";
 import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
+import {API_URL} from "../utils/API_URL"; // <- asegúrate que sea export default
 
 const cx = (...c) => c.filter(Boolean).join(" ");
 
 const SocialButtons = () => (
   <div className="w-full flex justify-center gap-3">
-    <button
-      type="button"
-      aria-label="Facebook"
-      className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
-    >
+    <button type="button" aria-label="Facebook" className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
       <FaFacebookF />
     </button>
-    <button
-      type="button"
-      aria-label="Twitter"
-      className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
-    >
+    <button type="button" aria-label="Twitter" className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
       <FaTwitter />
     </button>
-    <button
-      type="button"
-      aria-label="LinkedIn"
-      className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
-    >
+    <button type="button" aria-label="LinkedIn" className="grid place-items-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
       <FaLinkedinIn />
     </button>
   </div>
 );
 
 const RegisterForm = ({ activeView }) => {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const show = activeView === "register";
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
-    console.log("Esto es data: ", form);
-    
     e.preventDefault();
-    try { 
-      await axios.post('/api/register', form); alert('Registered successfully'); 
-      return;
+    setLoading(true);
+
+    try {
+      const url = `${API_URL}/api/register`;
+      await axios.post(url, form, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      alert("Registered successfully");
+      setForm({ name: "", email: "", password: "" });
     } catch (error) {
-      alert(error.response?.data?.message || 'Registration failed');
+      console.log(error);
+      alert(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,26 +63,33 @@ const RegisterForm = ({ activeView }) => {
       <p className="mt-3 text-sm text-slate-500">or use your email for registration</p>
 
       <div className="mt-5 w-full space-y-3">
-        <input onChange={e => setForm({...form, name: e.target.value})}
+        <input
+          value={form.name}
+          onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
           placeholder="Name"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#6b50ff]"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
-        <input onChange={e => setForm({...form, email: e.target.value})}
+        <input
+          value={form.email}
+          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
           placeholder="Email"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#6b50ff]"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
-        <input onChange={e => setForm({...form, password: e.target.value})}
+        <input
+          value={form.password}
+          onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
           placeholder="Password"
           type="password"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#6b50ff]"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
       </div>
 
       <button
-        className="mt-6 w-full rounded-xl bg-[#3c23c9] text-white py-3 font-semibold hover:opacity-95 transition cursor-pointer"
+        className="mt-6 w-full rounded-xl bg-[#e1ae52] cursor-pointer text-white py-3 font-semibold hover:opacity-95 transition disabled:opacity-60"
         type="submit"
+        disabled={loading}
       >
-        SIGN UP
+        {loading ? "CREATING..." : "SIGN UP"}
       </button>
     </form>
   );
@@ -113,17 +119,17 @@ const LoginForm = ({ activeView }) => {
       <div className="mt-5 w-full space-y-3">
         <input
           placeholder="Email"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#6b50ff]"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
         <input
           placeholder="Password"
           type="password"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#6b50ff]"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
       </div>
 
       <button
-        className="mt-6 w-full rounded-xl bg-[#3c23c9] text-white py-3 font-semibold hover:opacity-95 transition cursor-pointer"
+        className="mt-6 w-full rounded-xl bg-[#e1ae52] cursor-pointer text-white py-3 font-semibold hover:opacity-95 transition"
         type="submit"
       >
         LOGIN
@@ -139,13 +145,12 @@ const OverlayPanel = ({ activeView, toggleView }) => {
     <div
       className={cx(
         "absolute inset-y-0 left-0 w-1/2 z-[5]",
-        "rounded-[18px] bg-[linear-gradient(45deg,#5823c9,#6b50ff)]",
+        "rounded-[18px] bg-[#3c3c3c]",
         "transition-transform duration-[650ms] ease-in-out",
         overlayOnRight ? "translate-x-full" : "translate-x-0"
       )}
     >
       <div className="relative h-full w-full flex items-center justify-center p-10 text-center text-white">
-        {/* register: invita a LOGIN */}
         <div
           className={cx(
             "absolute inset-0 flex flex-col items-center justify-center gap-4 px-10",
@@ -160,13 +165,12 @@ const OverlayPanel = ({ activeView, toggleView }) => {
           <button
             type="button"
             onClick={toggleView}
-            className="px-10 py-3 rounded-full tracking-[1px] border border-white/90 hover:bg-white hover:text-[#3c23c9] transition cursor-pointer"
+            className="px-10 py-3 rounded-full tracking-[1px] border border-white/90 hover:bg-white cursor-pointer hover:text-[#3c3c3c] transition"
           >
             LOGIN
           </button>
         </div>
 
-        {/* login: invita a SIGN UP */}
         <div
           className={cx(
             "absolute inset-0 flex flex-col items-center justify-center gap-4 px-10",
@@ -181,7 +185,7 @@ const OverlayPanel = ({ activeView, toggleView }) => {
           <button
             type="button"
             onClick={toggleView}
-            className="px-10 py-3 rounded-full tracking-[1px] border border-white/90 hover:bg-white hover:text-[#3c23c9] transition cursor-pointer"
+            className="px-10 py-3 rounded-full tracking-[1px] border border-white/90 hover:bg-white hover:text-[#3c3c3c] cursor-pointer transition"
           >
             SIGN UP
           </button>
@@ -193,7 +197,6 @@ const OverlayPanel = ({ activeView, toggleView }) => {
 
 export default function Login() {
   const [activeView, setActiveView] = useState("register");
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
 
   const toggleView = () =>
     setActiveView((prev) => (prev === "register" ? "login" : "register"));
@@ -208,10 +211,7 @@ export default function Login() {
           "shadow-[0_12px_80px_rgba(41,30,113,0.12)]"
         )}
       >
-        {/* ✅ SOLO se mueve el overlay */}
         <OverlayPanel activeView={activeView} toggleView={toggleView} />
-
-        {/* ✅ Forms fijos, solo cambian visibilidad */}
         <RegisterForm activeView={activeView} />
         <LoginForm activeView={activeView} />
       </div>
