@@ -1,5 +1,5 @@
 // src/env.js
-const IS_PROD = false;
+const IS_PROD = false; // <-- local
 
 export const api_url = IS_PROD
   ? "https://xypdmnido2.execute-api.us-west-1.amazonaws.com/api"

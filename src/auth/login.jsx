@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
-import {API_URL} from "../utils/API_URL"; // <- asegúrate que sea export default
+import { API_URL } from "../utils/API_URL";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setAuth } from "../store/authSlice";
 
 const cx = (...c) => c.filter(Boolean).join(" ");
 
@@ -19,7 +22,7 @@ const SocialButtons = () => (
   </div>
 );
 
-const RegisterForm = ({ activeView }) => {
+const RegisterForm = ({ activeView, toggleView }) => {
   const show = activeView === "register";
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -29,12 +32,11 @@ const RegisterForm = ({ activeView }) => {
     setLoading(true);
 
     try {
-      const url = `${API_URL}/api/register`;
-      await axios.post(url, form, {
+      await axios.post(API_URL.post.register, form, {
         headers: { "Content-Type": "application/json" },
       });
 
-      alert("Registered successfully");
+      toggleView();
       setForm({ name: "", email: "", password: "" });
     } catch (error) {
       console.log(error);
@@ -97,10 +99,43 @@ const RegisterForm = ({ activeView }) => {
 
 const LoginForm = ({ activeView }) => {
   const show = activeView === "login";
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch(); // ✅ AQUÍ
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await axios.post(API_URL.post.login, form, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      dispatch(
+        setAuth({
+          access_token: res.data.access_token,
+          token_type: res.data.token_type,
+          name: res.data.name,
+        })
+      );
+
+      navigate(`/profile/${encodeURIComponent(res.data.name)}`);
+
+      setForm({ name: "", email: "", password: "" });
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={handleLogin}
       className={cx(
         "absolute inset-y-0 left-1/2 w-1/2 z-[1]",
         "flex flex-col items-center justify-center px-10 text-center",
@@ -118,10 +153,14 @@ const LoginForm = ({ activeView }) => {
 
       <div className="mt-5 w-full space-y-3">
         <input
+          value={form.email}
+          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
           placeholder="Email"
           className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
         />
         <input
+          value={form.password}
+          onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
           placeholder="Password"
           type="password"
           className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#e1ae52]"
@@ -129,10 +168,11 @@ const LoginForm = ({ activeView }) => {
       </div>
 
       <button
-        className="mt-6 w-full rounded-xl bg-[#e1ae52] cursor-pointer text-white py-3 font-semibold hover:opacity-95 transition"
+        className="mt-6 w-full rounded-xl bg-[#e1ae52] cursor-pointer text-white py-3 font-semibold hover:opacity-95 transition disabled:opacity-60"
         type="submit"
+        disabled={loading}
       >
-        LOGIN
+        {loading ? "CREATING..." : "LOGIN"}
       </button>
     </form>
   );
@@ -212,7 +252,7 @@ export default function Login() {
         )}
       >
         <OverlayPanel activeView={activeView} toggleView={toggleView} />
-        <RegisterForm activeView={activeView} />
+        <RegisterForm activeView={activeView} toggleView={toggleView} />
         <LoginForm activeView={activeView} />
       </div>
     </div>

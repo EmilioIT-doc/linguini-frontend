@@ -7,9 +7,9 @@ export default function Home() {
       <section>
         <Collage/>
       </section>
-      <section>
+      {/* <section>
         <Introduction/>
-      </section>
+      </section> */}
     </div>
   );
 }

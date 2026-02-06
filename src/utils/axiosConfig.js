@@ -1,13 +1,10 @@
+import { store } from "../store/store"; 
+
 export function axiosConfig() {
-    if (typeof window !== "undefined") {
-        return {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            withCredentials: true
-        };
-    }
-    return {
-        headers: {}
-    };
+  const { token, tokenType } = store.getState().auth;
+
+  return {
+    headers: token ? { Authorization: `${tokenType || "Bearer"} ${token}` } : {},
+    withCredentials: false,
+  };
 }
