@@ -19,9 +19,11 @@ const saveGuest = (items) => {
 };
 
 const initialState = {
-  guestItems: loadGuest(), // ✅ persiste
-  authItems: [],           // ✅ NO persiste (se rellena desde DB)
+  guestItems: loadGuest(),
+  authItems: [],
+  authCount: 0,
 };
+
 
 const upsertItem = (items, payload) => {
   const { product_id, quantity = 1, name, unit_price } = payload;
@@ -57,6 +59,13 @@ const cartSlice = createSlice({
       saveGuest([]);
     },
 
+    setGuestItems(state, action) {
+      state.guestItems = action.payload || [];
+    },
+    setAuthCountCart(state, action) {          // ✅ NUEVO
+      state.authCount = Number(action.payload || 0);
+    },
+
     // ✅ Auth (DB)
     setAuthCart: (state, action) => {
       state.authItems = action.payload || [];
@@ -69,6 +78,9 @@ const cartSlice = createSlice({
     },
     clearAuthCart: (state) => {
       state.authItems = [];
+    },
+    clearCart(state) {
+      state.guestItems = [];
     },
     // cartSlice.js (reducers)
     setAuthItems: (state, action) => {
@@ -91,6 +103,7 @@ export const {
   addAuthItem,
   removeAuthItem,
   clearAuthCart,
+  setGuestItems, setAuthCountCart, clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

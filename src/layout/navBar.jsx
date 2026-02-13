@@ -8,6 +8,8 @@ import axios from "axios";
 import { API_URL } from "../utils/API_URL";
 import { clearAuth } from "../store/authSlice";
 import { axiosConfig } from "../utils/axiosConfig";
+import { setAuthCountCart } from "../store/cartSlice";
+
 
 export default function NavBar() {
   const dispatch = useDispatch();
@@ -23,18 +25,17 @@ export default function NavBar() {
     return (guestItems || []).reduce((sum, it) => sum + (Number(it.quantity) || 0), 0);
   }, [guestItems]);
 
-  // ✅ count auth (viene del backend)
-  const [authCartCount, setAuthCartCount] = useState(0);
-
   // ✅ rutas
   const userTo = isLogged ? `/profile/${encodeURIComponent(name)}` : "/login";
   const cartTo = isLogged ? "/cart_auth" : "/cart";
 
+  const authCartCount = useSelector((state) => state.cart.authCount); // ✅ selector con otro nombre
   // ✅ badge final
   const cartCount = isLogged ? authCartCount : guestCount;
 
   const [open, setOpen] = useState(false);
   const [atTop, setAtTop] = useState(true);
+
 
   useEffect(() => {
     const onScroll = () => setAtTop(window.scrollY <= 5);
@@ -49,7 +50,7 @@ export default function NavBar() {
 
     const fetchAuthCartCount = async () => {
       if (!isLogged) {
-        setAuthCartCount(0);
+        dispatch(setAuthCountCart(0));
         return;
       }
 
@@ -57,30 +58,27 @@ export default function NavBar() {
         const res = await axios.get(API_URL.get.cartAuth, axiosConfig());
         const count = Number(res.data?.count || 0);
         if (!alive) return;
-        setAuthCartCount(count);
+        dispatch(setAuthCountCart(count)); // ✅
       } catch (e) {
         console.log(e);
         if (e?.response?.status === 401) {
           dispatch(clearAuth());
-          setAuthCartCount(0);
+          dispatch(setAuthCountCart(0));
         }
       }
     };
 
     fetchAuthCartCount();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [isLogged, token, tokenType, dispatch]);
 
+
   const linkClass = ({ isActive }) =>
-    `transition-colors leading-none ${
-      isActive ? "text-[#e1ae52]" : "text-[#707070] hover:text-[#e1ae52]"
+    `transition-colors leading-none ${isActive ? "text-[#e1ae52]" : "text-[#707070] hover:text-[#e1ae52]"
     }`;
 
   const iconLinkClass = ({ isActive }) =>
-    `transition-colors flex flex-col items-center leading-none ${
-      isActive ? "text-[#e1ae52]" : "text-[#707070] hover:text-[#e1ae52]"
+    `transition-colors flex flex-col items-center leading-none ${isActive ? "text-[#e1ae52]" : "text-[#707070] hover:text-[#e1ae52]"
     }`;
 
   return (
